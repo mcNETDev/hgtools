@@ -139,8 +139,8 @@ jar {
 	dependsOn "incrementBuildNumber"
     manifest {
         attributes([
-            "Specification-Title": "modularmobfarms",
-            "Specification-Vendor": "modularmobfarms",
+            "Specification-Title": "hgtools",
+            "Specification-Vendor": "hgtools",
             "Specification-Version": "1", // We are version 1 of ourselves
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
