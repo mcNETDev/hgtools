@@ -22,8 +22,6 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.server.permission.PermissionAPI;
 
-import javax.annotation.Nullable;
-
 public class HGCommands {
     public static final String PERM_INVSEE = "hgtools.invsee";
     public static final String PERM_BANITEM = "hgtools.banneditems";
@@ -66,7 +64,6 @@ public class HGCommands {
                                         .then(Commands.literal("hand")
                                                 .executes(context -> banItem(context, context.getSource().asPlayer().getHeldItemMainhand())
                                                 )
-
                                         )
                                         .then(Commands.argument("item", ItemArgument.item())
                                                 .executes(context -> banItem(context, ItemArgument.getItem(context, "item").createStack(1, false)
@@ -78,10 +75,9 @@ public class HGCommands {
                                         .then(Commands.literal("hand")
                                                 .executes(context -> unbanItem(context, context.getSource().asPlayer().getHeldItemMainhand())
                                                 )
-
                                         )
                                         .then(Commands.argument("item", ItemArgument.item())
-                                                .executes(context -> unbanItem(context, ItemArgument.getItem(context, "item").createStack(0, false))
+                                                .executes(context -> unbanItem(context, ItemArgument.getItem(context, "item").createStack(1, false))
                                                 )
                                         )
                                 )
@@ -89,11 +85,11 @@ public class HGCommands {
         );
     }  //@formatter:on
 
-    private static int unbanItem(CommandContext<CommandSource> context, ItemStack heldItemMainhand) throws CommandSyntaxException {
+    private static int unbanItem(CommandContext<CommandSource> context, ItemStack itemstack) throws CommandSyntaxException {
         ServerPlayerEntity p = context.getSource().asPlayer();
-        if (HGApi.get(p.getServer()).isItemBanned(heldItemMainhand)) {
-            HGApi.get(p.getServer()).removeBannedItem(heldItemMainhand);
-            p.sendMessage(new StringTextComponent(TextFormatting.GRAY + "Removed " + heldItemMainhand.getItem().getRegistryName() + " from the ban list!"), null);
+        if (HGApi.get(p.getServer()).containsItem(itemstack)) {
+            HGApi.get(p.getServer()).removeBannedItem(itemstack);
+            p.sendMessage(new StringTextComponent(TextFormatting.GRAY + "Removed " + itemstack.getItem().getRegistryName() + " from the ban list!"), null);
         } else {
             p.sendMessage(new StringTextComponent(TextFormatting.GRAY + "Item is not on the Ban list!"), null);
         }
@@ -102,7 +98,7 @@ public class HGCommands {
 
     private static int banItem(CommandContext<CommandSource> context, ItemStack heldItemMainhand) throws CommandSyntaxException {
         ServerPlayerEntity p = context.getSource().asPlayer();
-        if (HGApi.get(p.getServer()).isItemBanned(heldItemMainhand)) {
+        if (HGApi.get(p.getServer()).containsItem(heldItemMainhand)) {
             p.sendMessage(new StringTextComponent(TextFormatting.GRAY + "Item is already banned!"), null);
         } else {
             HGApi.get(p.getServer()).addBannedItem(heldItemMainhand);

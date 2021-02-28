@@ -1,6 +1,5 @@
 package de.dwdev.hgtools;
 
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -65,18 +64,25 @@ public class HGApi extends WorldSavedData {
 
 
     public boolean isItemBanned(ItemStack itemStack) {
-        ItemStack a = itemStack.copy();
         if (editMode) {
             return false;
         }
         for (ResourceLocation bannedItem : bannedItems) {
-            if (a.getItem().getRegistryName().equals(bannedItem)) {
+            if (itemStack.getItem().getRegistryName().equals(bannedItem)) {
                 return true;
             }
         }
         return false;
     }
 
+    public boolean containsItem(ItemStack itemStack) {
+        for (ResourceLocation bannedItem : bannedItems) {
+            if (itemStack.getItem().getRegistryName().equals(bannedItem)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public ArrayList<ResourceLocation> getBannedItems() {
         return bannedItems;
@@ -84,7 +90,7 @@ public class HGApi extends WorldSavedData {
 
     public void removeBannedItem(ItemStack heldItemMainhand) {
         for (int i = 0; i < bannedItems.size(); i++) {
-            if(bannedItems.get(i).equals(heldItemMainhand.getItem().getRegistryName())){
+            if (bannedItems.get(i).equals(heldItemMainhand.getItem().getRegistryName())) {
                 bannedItems.remove(i);
             }
         }
@@ -96,14 +102,14 @@ public class HGApi extends WorldSavedData {
     }
 
     public void checkPlayerInv(ServerPlayerEntity player) {
-        if(editMode){
+        if (editMode) {
             return;
         }
-        if(player.openContainer != null){
+        if (player.openContainer != null) {
             for (int i = 0; i < player.openContainer.getInventory().size(); i++) {
                 ItemStack s = player.openContainer.getInventory().get(i);
-                if(s != null && s.getItem() != null){
-                    if(isItemBanned(s)){
+                if (s != null && s.getItem() != null) {
+                    if (isItemBanned(s)) {
                         s.setCount(0);
                         player.openContainer.getInventory().set(i, ItemStack.EMPTY);
                     }
@@ -112,8 +118,8 @@ public class HGApi extends WorldSavedData {
         }
         for (int i = 0; i < player.inventory.mainInventory.size(); i++) {
             ItemStack s = player.inventory.mainInventory.get(i);
-            if(s != null && s.getItem() != null){
-                if(isItemBanned(s)){
+            if (s != null && s.getItem() != null) {
+                if (isItemBanned(s)) {
                     s.setCount(0);
                     player.inventory.mainInventory.set(i, ItemStack.EMPTY);
                 }
@@ -121,8 +127,8 @@ public class HGApi extends WorldSavedData {
         }
         for (int i = 0; i < player.inventory.armorInventory.size(); i++) {
             ItemStack s = player.inventory.armorInventory.get(i);
-            if(s != null && s.getItem() != null){
-                if(isItemBanned(s)){
+            if (s != null && s.getItem() != null) {
+                if (isItemBanned(s)) {
                     s.setCount(0);
                     player.inventory.armorInventory.set(i, ItemStack.EMPTY);
                 }
@@ -130,8 +136,8 @@ public class HGApi extends WorldSavedData {
         }
         for (int i = 0; i < player.inventory.offHandInventory.size(); i++) {
             ItemStack s = player.inventory.offHandInventory.get(i);
-            if(s != null && s.getItem() != null){
-                if(isItemBanned(s)){
+            if (s != null && s.getItem() != null) {
+                if (isItemBanned(s)) {
                     s.setCount(0);
                     player.inventory.offHandInventory.set(i, ItemStack.EMPTY);
                 }
