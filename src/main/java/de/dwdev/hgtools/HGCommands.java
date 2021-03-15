@@ -1,5 +1,6 @@
 package de.dwdev.hgtools;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -22,16 +23,18 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.server.permission.PermissionAPI;
 
+import java.util.UUID;
+
 public class HGCommands {
-    public static final String PERM_INVSEE = "hgtools.invsee";
-    public static final String PERM_BANITEM = "hgtools.banneditems";
+    public static final UUID sender = UUID.randomUUID();
+
 
     //@formatter:off
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(
                 Commands.literal("invsee")
                         .requires(src -> {
-                            return hasPermission(src, PERM_INVSEE);
+                            return hasPermission(src);
                         })
                         .then(Commands.argument("player", EntityArgument.player())
                                 .executes(context -> invsee(context.getSource().asPlayer(), EntityArgument.getPlayer(context, "player")))));
@@ -39,7 +42,7 @@ public class HGCommands {
                 Commands.literal("hgtools")
                         .then(Commands.literal("invsee")
                                 .requires(src -> {
-                                    return hasPermission(src, PERM_INVSEE);
+                                    return hasPermission(src);
                                 })
                                 .then(Commands.argument("player", EntityArgument.player())
                                         .executes(context -> invsee(context.getSource().asPlayer(), EntityArgument.getPlayer(context, "player"))
@@ -48,7 +51,7 @@ public class HGCommands {
                         )
                         .then(Commands.literal("ban_item")
                                 .requires(src -> {
-                                    return hasPermission(src, PERM_BANITEM);
+                                    return hasPermission(src);
                                 })
                                 .then(Commands.literal("list")
                                         .executes(context -> listBannedItems(context)
@@ -89,9 +92,9 @@ public class HGCommands {
         ServerPlayerEntity p = context.getSource().asPlayer();
         if (HGApi.get(p.getServer()).containsItem(itemstack)) {
             HGApi.get(p.getServer()).removeBannedItem(itemstack);
-            p.sendMessage(new StringTextComponent(TextFormatting.GRAY + "Removed " + itemstack.getItem().getRegistryName() + " from the ban list!"), null);
+            p.sendMessage(new StringTextComponent(TextFormatting.GRAY + "Removed " + itemstack.getItem().getRegistryName() + " from the ban list!"), sender);
         } else {
-            p.sendMessage(new StringTextComponent(TextFormatting.GRAY + "Item is not on the Ban list!"), null);
+            p.sendMessage(new StringTextComponent(TextFormatting.GRAY + "Item is not on the Ban list!"), sender);
         }
         return 1;
     }
@@ -99,17 +102,17 @@ public class HGCommands {
     private static int banItem(CommandContext<CommandSource> context, ItemStack heldItemMainhand) throws CommandSyntaxException {
         ServerPlayerEntity p = context.getSource().asPlayer();
         if (HGApi.get(p.getServer()).containsItem(heldItemMainhand)) {
-            p.sendMessage(new StringTextComponent(TextFormatting.GRAY + "Item is already banned!"), null);
+            p.sendMessage(new StringTextComponent(TextFormatting.GRAY + "Item is already banned!"), sender);
         } else {
             HGApi.get(p.getServer()).addBannedItem(heldItemMainhand);
-            p.sendMessage(new StringTextComponent(TextFormatting.GRAY + "Added " + heldItemMainhand.getItem().getRegistryName() + " to the ban list!"), null);
+            p.sendMessage(new StringTextComponent(TextFormatting.GRAY + "Added " + heldItemMainhand.getItem().getRegistryName() + " to the ban list!"), sender);
         }
         return 1;
     }
 
     private static int toggleEditmode(CommandContext<CommandSource> context, boolean enabled) throws CommandSyntaxException {
         HGApi.get(context.getSource().getServer()).editMode = enabled;
-        context.getSource().asPlayer().sendMessage(new StringTextComponent(TextFormatting.GRAY + "Global Editmode is now " + (enabled ? "on" : "off")), null);
+        context.getSource().asPlayer().sendMessage(new StringTextComponent(TextFormatting.GRAY + "Global Editmode is now " + (enabled ? "on" : "off")), sender);
         return 1;
     }
 
@@ -117,7 +120,7 @@ public class HGCommands {
         HGApi.get(context.getSource().getServer()).getBannedItems().forEach(itemStack -> {
             try {
                 if (itemStack != null) {
-                    context.getSource().asPlayer().sendMessage(new StringTextComponent(TextFormatting.GRAY + itemStack.toString()), null);
+                    context.getSource().asPlayer().sendMessage(new StringTextComponent(TextFormatting.GRAY + itemStack.toString()), sender);
                 }
             } catch (CommandSyntaxException e) {
                 e.printStackTrace();
@@ -127,12 +130,9 @@ public class HGCommands {
         return 1;
     }
 
-    private static boolean hasPermission(CommandSource src, String perm) {
+    private static boolean hasPermission(CommandSource src) {
         if (src.getEntity() instanceof ServerPlayerEntity) {
             try {
-                if (PermissionAPI.hasPermission(src.asPlayer(), perm)) {
-                    return true;
-                }
                 if (src.asPlayer().hasPermissionLevel(3)) {
                     return true;
                 }

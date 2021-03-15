@@ -54,33 +54,33 @@ public class HGEvents {
         ServerPlayerEntity p = (ServerPlayerEntity) player;
 
         World w = player.getEntityWorld();
-        if (player.getEntityWorld().getGameTime() % 20 == 0) {
-            CustomServerBossInfo i = getBosbar(player);
-            if (w.getDimensionKey().getLocation().getPath().equals("oldworld")) {
-                if (!i.getPlayers().contains(p)) {
-                    i.addPlayer(p);
-                }
-            } else {
-                if (i.getPlayers().contains(p)) {
-                    i.removePlayer(p);
-                }
-            }
-
-            if (w.getDimensionKey().getLocation().getPath().equals("overworld")) {
-
-                CustomServerBossInfo b2 = getBosbarLeave(player);
-                BlockPos pos = player.getPosition();
-                if (pos.getX() > 10000 || pos.getZ() > 10000 || pos.getX() < -10000 || pos.getZ() < -10000) {
-                    if (!b2.getPlayers().contains(p)) {
-                        b2.addPlayer(p);
-                    }
-                } else {
-                    if (b2.getPlayers().contains(p)) {
-                        b2.removePlayer(p);
-                    }
-                }
-            }
-        }
+//        if (player.getEntityWorld().getGameTime() % 20 == 0) {
+//            CustomServerBossInfo i = getBosbar(player);
+//            if (w.getDimensionKey().getLocation().getPath().equals("oldworld")) {
+//                if (!i.getPlayers().contains(p)) {
+//                    i.addPlayer(p);
+//                }
+//            } else {
+//                if (i.getPlayers().contains(p)) {
+//                    i.removePlayer(p);
+//                }
+//            }
+//
+//            if (w.getDimensionKey().getLocation().getPath().equals("overworld")) {
+//
+//                CustomServerBossInfo b2 = getBosbarLeave(player);
+//                BlockPos pos = player.getPosition();
+//                if (pos.getX() > 10000 || pos.getZ() > 10000 || pos.getX() < -10000 || pos.getZ() < -10000) {
+//                    if (!b2.getPlayers().contains(p)) {
+//                        b2.addPlayer(p);
+//                    }
+//                } else {
+//                    if (b2.getPlayers().contains(p)) {
+//                        b2.removePlayer(p);
+//                    }
+//                }
+//            }
+//        }
         if (player.getEntityWorld().getGameTime() % 10 == 0) {
             HGApi.get(player.getServer()).checkPlayerInv(p);
         }
@@ -118,8 +118,6 @@ public class HGEvents {
 
     @SubscribeEvent
     public void starting(final FMLServerStartingEvent event) {
-        PermissionAPI.registerNode(HGCommands.PERM_INVSEE, DefaultPermissionLevel.OP, "Invsee other Players Inventory");
-        PermissionAPI.registerNode(HGCommands.PERM_BANITEM, DefaultPermissionLevel.OP, "Ban Items");
 
     }
 }
